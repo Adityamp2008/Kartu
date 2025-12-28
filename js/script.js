@@ -99,7 +99,7 @@ prevBtn.addEventListener('click', goPrev);
 
 // WhatsApp
 function kirimWA() {
-    const no = "6281234567890"; // GANTI NOMOR WA
+    const no = "085938609714"; // GANTI NOMOR WA
     const text = "Hi! Makasih ya kadonya ❤️";
     window.open(`https://wa.me/${no}?text=${encodeURIComponent(text)}`, '_blank');
 }
