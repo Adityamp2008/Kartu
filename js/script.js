@@ -63,7 +63,7 @@ function goNext() {
             case 3:
                 p3.classList.add('flipped');
                 p3.style.zIndex = 3;
-                book.classList.remove('book-open'); // Tutup di akhir
+               // book.classList.remove('book-open'); // Tutup di akhir
                 break;
         }
         currentState++;
