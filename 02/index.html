@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday!</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pink: { 50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af', 400: '#fb7185', 500: '#f43f5e', 600: '#e11d48' },
+                    },
+                    fontFamily: {
+                        'script': ['Dancing Script', 'cursive'],
+                        'body': ['Nunito', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #fff1f2;
+            background-image: radial-gradient(#fb7185 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+        }
+
+        /* SVG Line Container */
+        #svg-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; overflow: visible;
+        }
+        
+        .red-string {
+            fill: none; stroke: #e11d48; stroke-width: 3;
+            stroke-linecap: round; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.1));
+        }
+
+        /* Scrollbar Hide */
+        ::-webkit-scrollbar { width: 0; background: transparent; }
+
+        /* Gift Box CSS */
+        .gift-box { cursor: pointer; transition: transform 0.3s; }
+        .gift-box:active { transform: scale(0.9); }
+    </style>
+</head>
+<body class="font-body text-gray-700">
+
+    <audio id="bg-music" loop>
+        <source src="musik.mp3" type="audio/mpeg">
+    </audio>
+
+    <button id="btn-music" class="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur w-10 h-10 rounded-full shadow border border-pink-200 text-pink-500 flex items-center justify-center">
+        <i class="fa-solid fa-music"></i>
+    </button>
+
+
+    <main id="stage-story" class="relative w-full min-h-screen pb-40 transition-opacity duration-1000">
+        
+        <div class="text-center pt-10 pb-2 z-20 relative px-4">
+            <h1 class="text-5xl font-script text-pink-600 drop-shadow-sm">Memory Lane</h1>
+            <p class="text-xs text-pink-400 mt-2 tracking-widest uppercase">Tap tombol di bawah</p>
+        </div>
+
+        <svg id="svg-container"></svg>
+
+        <div id="timeline-container" class="relative z-10 max-w-md mx-auto px-6 flex flex-col gap-32 pt-10"></div>
+
+    </main>
+
+
+    <section id="stage-surprise" class="fixed inset-0 z-40 hidden flex flex-col items-center justify-center bg-pink-50/95 backdrop-blur-sm">
+        <div class="text-center animate-wiggle cursor-pointer" onclick="openGift()">
+            <div class="text-[8rem] leading-none drop-shadow-2xl">🎁</div>
+            <p class="mt-4 font-bold text-pink-600 text-xl animate-pulse">Ketuk Kado Untuk Membuka!</p>
+        </div>
+    </section>
+
+
+    <section id="stage-finale" class="hidden min-h-screen w-full bg-white relative">
+        <div class="h-40 bg-gradient-to-b from-pink-200 to-white relative overflow-hidden">
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+            <div class="absolute top-0 -right-10 w-40 h-40 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        </div>
+
+        <div class="px-6 -mt-20 relative z-10 pb-20 max-w-lg mx-auto">
+            
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-pink-100 p-8 text-center mb-10 transform translate-y-0">
+                <div class="text-5xl mb-4">🎂</div>
+                <h2 class="text-4xl font-script text-pink-600 mb-4">Happy Birthday!</h2>
+                <div class="text-gray-600 space-y-3 leading-relaxed text-sm">
+                    <p>Hai, kamu!</p>
+                    <p>Selamat ulang tahun ya. Website sederhana ini cuma cara kecil aku buat ngingetin betapa berharganya setiap momen bareng kamu (seperti foto-foto di bawah ini).</p>
+                    <p>Semoga di umur yang baru ini kamu makin bahagia, sehat terus, dan semua impian kamu tercapai.</p>
+                    <p class="font-bold text-pink-500 pt-4">Make a wish! ✨</p>
+                </div>
+            </div>
+
+            <h3 class="text-center font-bold text-pink-400 mb-4 text-sm tracking-widest">KOLEKSI FOTO KITA</h3>
+            <div id="final-gallery" class="grid grid-cols-2 gap-3">
+                </div>
+
+            <button onclick="location.reload()" class="mt-12 w-full py-4 rounded-xl text-pink-400 hover:bg-pink-50 text-sm font-bold border border-pink-200 border-dashed">
+                Ulangi Dari Awal ↺
+            </button>
+        </div>
+    </section>
+
+
+    <div class="fixed bottom-6 left-0 w-full px-6 z-30 flex justify-center">
+        <button id="btn-action" class="bg-pink-600 text-white w-full max-w-xs h-14 rounded-full shadow-lg shadow-pink-300/50 font-bold text-lg flex items-center justify-center gap-2 hover:bg-pink-700 active:scale-95 transition-all">
+            <span>Mulai</span> <i class="fa-solid fa-play text-sm"></i>
+        </button>
+    </div>
+
+
+    <div id="lightbox" class="fixed inset-0 bg-black/95 z-[60] hidden flex justify-center items-center p-2" onclick="this.classList.add('hidden')">
+        <img id="lightbox-img" src="" class="max-w-full max-h-screen rounded shadow-lg object-contain">
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        gsap.registerPlugin(ScrollToPlugin);
+
+        // --- KONFIGURASI CAPTION ---
+        // Jumlah item disini menentukan jumlah foto yg diambil (01.png s/d XX.png)
+        const storyData = [
+            { title: "Hello You!", desc: "Awal cerita dimulai dari sini..." },
+            { title: "Beautiful Smile", desc: "Senyum kamu yang selalu bikin adem." },
+            { title: "Adventure", desc: "Ingat nggak waktu kita kesini?" },
+            { title: "Random Moment", desc: "Foto candid yang aku suka banget." },
+            { title: "Best Partner", desc: "Terima kasih udah selalu ada." }
+        ];
+
+        // --- VARIABLES ---
+        let step = 0;
+        const timelineContainer = document.getElementById('timeline-container');
+        const svgContainer = document.getElementById('svg-container');
+        const btnAction = document.getElementById('btn-action');
+        const bgMusic = document.getElementById('bg-music');
+        
+        // --- 1. SETUP AUTOMATIC IMAGES ---
+        // Fungsi ini akan membuat card foto berdasarkan array storyData
+        // dan otomatis melampirkan img/01.png, img/02.png dst.
+        function initTimeline() {
+            storyData.forEach((data, index) => {
+                const imgNum = String(index + 1).padStart(2, '0'); // Ubah 1 jadi "01", 2 jadi "02"
+                const imgPath = `img/${imgNum}.png`; // Format: img/01.png
+
+                // Zig-zag layout logic
+                const align = index % 2 === 0 ? 'items-start' : 'items-end';
+                
+                const html = `
+                    <div id="memory-${index}" class="relative w-full flex flex-col ${align} opacity-0 translate-y-10">
+                        <div class="relative w-[85%] bg-white p-3 pb-8 shadow-xl rounded-lg transform rotate-${index % 2 === 0 ? '-1' : '1'}">
+                            <div id="pin-in-${index}" class="absolute -top-4 left-1/2 -translate-x-1/2 w-2 h-2 bg-transparent"></div>
+                            
+                            <div class="aspect-[4/5] overflow-hidden rounded bg-gray-100 mb-3 border border-gray-100">
+                                <img src="${imgPath}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x500?text=Foto+Hilang'">
+                            </div>
+                            
+                            <div class="text-center px-1">
+                                <h3 class="font-script text-2xl text-pink-600">${data.title}</h3>
+                                <p class="text-xs text-gray-400 mt-1 font-body">${data.desc}</p>
+                            </div>
+
+                            <div id="pin-out-${index}" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-pink-500 rounded-full border-2 border-white z-10 shadow"></div>
+                        </div>
+                    </div>
+                `;
+                timelineContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        initTimeline();
+
+
+        // --- 2. ACTION BUTTON LOGIC ---
+        btnAction.addEventListener('click', () => {
+            // Play Music on first click
+            if (bgMusic.paused) {
+                bgMusic.volume = 0.6;
+                bgMusic.play().catch(e => console.log("Audio blocked"));
+                btnAction.innerHTML = `<span>Lanjut</span> <i class="fa-solid fa-arrow-down"></i>`;
+            }
+
+            // Case 1: First Photo
+            if (step === 0) {
+                revealItem(0);
+                step++;
+                return;
+            }
+
+            // Case 2: Next Photos
+            if (step < storyData.length) {
+                // Disable button sementara animasi jalan
+                btnAction.disabled = true;
+                
+                // Draw line
+                drawRedString(step - 1, step);
+
+                // Auto Scroll Logic
+                const nextEl = document.getElementById(`memory-${step}`);
+                gsap.to(window, { 
+                    scrollTo: { y: nextEl, offsetY: 100 }, 
+                    duration: 1.5, 
+                    ease: "power2.inOut" 
+                });
+
+                setTimeout(() => {
+                    revealItem(step);
+                    step++;
+                    btnAction.disabled = false;
+
+                    // Cek jika sudah foto terakhir
+                    if (step === storyData.length) {
+                        btnAction.innerHTML = `<span>Ada Kejutan!</span> <i class="fa-solid fa-gift"></i>`;
+                        btnAction.classList.remove('bg-pink-600');
+                        btnAction.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-purple-500', 'animate-pulse');
+                    }
+                }, 1200); // Tunggu garis selesai
+            } 
+            // Case 3: Finish -> Trigger Surprise
+            else {
+                triggerSurpriseStage();
+            }
+        });
+
+
+        // --- 3. ANIMATION HELPERS ---
+        function revealItem(idx) {
+            const el = document.getElementById(`memory-${idx}`);
+            el.classList.remove('opacity-0', 'translate-y-10');
+            gsap.from(el, { scale: 0.9, duration: 1, ease: "elastic.out(1, 0.75)" });
+        }
+
+        function drawRedString(fromIdx, toIdx) {
+            const pinStart = document.getElementById(`pin-out-${fromIdx}`);
+            const pinEnd = document.getElementById(`pin-in-${toIdx}`);
+
+            // Get coordinates
+            const rect1 = pinStart.getBoundingClientRect();
+            const rect2 = pinEnd.getBoundingClientRect();
+            const svgRect = svgContainer.getBoundingClientRect();
+
+            const x1 = rect1.left + rect1.width/2 - svgRect.left;
+            const y1 = rect1.top + rect1.height/2 - svgRect.top;
+            const x2 = rect2.left + rect2.width/2 - svgRect.left;
+            const y2 = rect2.top + rect2.height/2 - svgRect.top;
+
+            // Bezier Curve (Hanging effect)
+            const cx = (x1 + x2) / 2;
+            const cy = (y1 + y2) / 2 + 60; // Lengkungan tali
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`);
+            path.setAttribute("class", "red-string");
+            svgContainer.appendChild(path);
+
+            // Animate stroke
+            const len = path.getTotalLength();
+            path.style.strokeDasharray = len;
+            path.style.strokeDashoffset = len;
+            path.getBoundingClientRect(); 
+            path.style.transition = "stroke-dashoffset 1.2s ease-in-out";
+            setTimeout(() => { path.style.strokeDashoffset = "0"; }, 10);
+        }
+
+
+        // --- 4. SURPRISE & FINALE LOGIC ---
+        function triggerSurpriseStage() {
+            // Hide story controls
+            gsap.to('#btn-action', { y: 100, duration: 0.5 });
+            
+            // Fade out story, Fade in Surprise Box
+            const story = document.getElementById('stage-story');
+            const surprise = document.getElementById('stage-surprise');
+            
+            gsap.to(story, { opacity: 0, duration: 0.5, onComplete: () => {
+                story.classList.add('hidden');
+                surprise.classList.remove('hidden');
+                gsap.from(surprise.firstElementChild, { scale: 0, rotation: 180, duration: 1, ease: "back.out" });
+            }});
+        }
+
+        // Dipanggil saat Kado diklik
+        window.openGift = function() {
+            // Confetti Explosion
+            fireConfetti();
+            
+            const surprise = document.getElementById('stage-surprise');
+            const finale = document.getElementById('stage-finale');
+
+            // Hide Box, Show Finale
+            gsap.to(surprise, { scale: 1.5, opacity: 0, duration: 0.5, onComplete: () => {
+                surprise.classList.add('hidden');
+                finale.classList.remove('hidden');
+                
+                // Copy photos to final gallery
+                populateFinalGallery();
+
+                // Animate Entry
+                gsap.from(finale, { opacity: 0, duration: 1 });
+                gsap.from('.bg-white\\/80', { y: 50, opacity: 0, delay: 0.5, duration: 1 });
+                gsap.to(window, { scrollTo: 0, duration: 0 }); // Reset scroll
+            }});
+        }
+
+        function populateFinalGallery() {
+            const gallery = document.getElementById('final-gallery');
+            storyData.forEach((data, index) => {
+                const imgNum = String(index + 1).padStart(2, '0');
+                const html = `
+                    <div onclick="showLightbox('img/${imgNum}.png')" class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer active:scale-95 transition-transform">
+                        <img src="img/${imgNum}.png" class="w-full h-full object-cover">
+                    </div>
+                `;
+                gallery.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // --- 5. UTILS ---
+        window.showLightbox = function(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').classList.remove('hidden');
+        }
+
+        function fireConfetti() {
+            const duration = 3000; 
+            const end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#f43f5e', '#fecdd3'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#f43f5e', '#fecdd3'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        document.getElementById('btn-music').addEventListener('click', () => {
+            if(bgMusic.paused) bgMusic.play(); else bgMusic.pause();
+        });
+
+    </script>
+</body>
+</html>

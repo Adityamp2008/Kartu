@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Special For You ❤️</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .font-hand { font-family: 'Dancing Script', cursive; }
+        .font-body { font-family: 'Quicksand', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fbcfe8 100%);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .perspective-container { perspective: 2000px; }
+
+        /* BUKU UTAMA */
+        #book {
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+        }
+
+        #book::before {
+            content: '';
+            position: absolute;
+            left: 3px; top: 3px; width: 100%; height: 100%;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            z-index: -1;
+            box-shadow: 2px 2px 0 #ddd, 4px 4px 0 #ccc;
+            transform: translateZ(-4px);
+        }
+
+        /* --- POSISI --- */
+        .book-close { transform: translateX(0%); }
+        .book-open { transform: translateX(45%); }
+
+        @media (min-width: 768px) {
+            .book-open { transform: translateX(50%); }
+        }
+
+        /* KERTAS */
+        .paper {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            transform-origin: left center;
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-style: preserve-3d;
+        }
+
+        .front, .back {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            backface-visibility: hidden; background-color: white;
+            overflow: hidden; border-radius: 8px;
+            border: 1px solid #fce7f3;
+        }
+
+        .strap {
+            position: absolute; right: 15px; top: 0; bottom: 0; width: 10px;
+            background: rgba(0,0,0,0.05);
+            box-shadow: inset 1px 0 1px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .front::after {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 20px;
+            background: linear-gradient(to right, rgba(0,0,0,0.1), transparent); pointer-events: none;
+        }
+        .back::after {
+            content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 20px;
+            background: linear-gradient(to left, rgba(0,0,0,0.1), transparent); pointer-events: none;
+        }
+
+        .front { z-index: 2; }
+        .back { z-index: 1; transform: rotateY(180deg); border-left: 1px solid #f0f0f0; }
+        .flipped { transform: rotateY(-180deg); }
+
+        /* --- ANIMASI JATUH DARI ATAS (FALLING DOWN) --- */
+        .floating-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        
+        .float-item {
+            position: absolute;
+            top: -10%; /* Mulai dari atas layar */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation-name: fallDown;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            z-index: 0;
+        }
+
+        @keyframes fallDown {
+            0% { 
+                transform: translateY(0) translateX(0) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 0.8; 
+            }
+            50% { 
+                /* Efek Goyang ke Kanan dikit biar natural */
+                transform: translateY(50vh) translateX(20px) rotate(180deg); 
+            }
+            100% { 
+                /* Jatuh sampai bawah */
+                transform: translateY(110vh) translateX(-20px) rotate(360deg); 
+                opacity: 0; 
+            }
+        }
+
+        .text-scroll { overflow-y: auto; max-height: 100%; padding-right: 5px; }
+        .zoomable-img { cursor: zoom-in; }
+    </style>
+</head>
+<body class="h-[100dvh] w-full flex flex-col justify-center items-center relative">
+
+    <audio id="bgMusic" loop><source src="audio/musik.mp3" type="audio/mpeg"></audio>
+    
+    <div class="floating-bg" id="bgAnimation"></div>
+
+    <div id="imageModal" class="fixed inset-0 z-[100] hidden bg-black/90 flex justify-center items-center p-4 transition-opacity duration-300 opacity-0" onclick="closeModal()">
+        <img id="modalImg" src="" class="max-w-full max-h-[80vh] rounded shadow-lg scale-95 transition-transform duration-300 object-contain">
+        <p class="absolute bottom-10 text-white text-xs bg-white/20 px-3 py-1 rounded-full">Ketuk untuk menutup</p>
+    </div>
+
+    <div id="intro" class="fixed inset-0 z-50 flex flex-col justify-center items-center bg-[#fff0f5] px-6 text-center transition-all duration-700">
+        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl mb-6 animate-bounce text-pink-500 text-4xl border-4 border-pink-100">
+            <i class="fa-solid fa-gift"></i>
+        </div>
+        <h1 class="font-hand text-5xl text-pink-600 mb-2 font-bold">For You</h1>
+        <p class="text-gray-500 text-xs mb-8 tracking-widest uppercase">Klik tombol di bawah ya</p>
+        <button id="btnOpen" class="px-10 py-3 bg-gradient-to-r from-pink-500 to-rose-400 text-white rounded-full shadow-xl font-bold hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
+            <i class="fa-solid fa-book-open"></i> Buka Sekarang
+        </button>
+    </div>
+
+    <div id="bookWrapper" class="hidden opacity-0 transition-opacity duration-1000 w-full h-full flex flex-col justify-center items-center gap-6 perspective-container z-10">
+        
+        <div id="book" class="relative w-[75vw] aspect-[3/4.5] md:w-[340px] md:h-[500px]">
+            
+            <div class="absolute top-0 left-0 w-full h-full bg-white rounded-lg flex items-center justify-center border border-gray-200 shadow-inner p-2" style="z-index: 0;">
+                <img src="img/01.png" class="w-full h-full object-cover rounded opacity-80" alt="Ending Photo">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="bg-white/80 px-3 py-1 rounded-full backdrop-blur-sm">
+                        <i class="fa-solid fa-heart text-pink-500 animate-pulse"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper" id="p1" style="z-index: 6;">
+                <div class="front bg-gradient-to-br from-pink-500 to-rose-600 text-white border-2 border-pink-300">
+                    <div class="strap"></div>
+                    <div class="h-full flex flex-col justify-center items-center p-3 text-center border-4 border-white/20 m-2 rounded relative z-20">
+                        <i class="fa-solid fa-heart text-4xl mb-4 animate-pulse text-pink-100"></i>
+                        <h1 class="font-hand text-4xl md:text-5xl drop-shadow-md mb-2">Our<br>Story</h1>
+                        <p class="text-[10px] uppercase tracking-widest opacity-80 mt-2">Special Edition</p>
+                    </div>
+                </div>
+                <div class="back bg-white p-4 flex flex-col items-center text-center">
+                    <h2 class="font-hand text-2xl text-pink-600 mb-2">Halo!</h2>
+                    <div class="text-scroll w-full text-left bg-pink-50 p-3 rounded-lg border border-pink-100 h-full">
+                        <p class="font-body text-xs text-gray-700 leading-relaxed">
+                            Web ini aku buat biar kenangan kita tersimpan rapi.<br><br>
+                            Semoga kamu suka ya. Geser ke kanan 👉
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper" id="p2" style="z-index: 5;">
+                <div class="front bg-white p-2 flex flex-col">
+                    <div class="flex-1 bg-gray-100 rounded overflow-hidden relative border border-gray-200">
+                        <img src="img/05.png" class="zoomable-img w-full h-full object-cover" onclick="openModal(this.src)">
+                    </div>
+                    <p class="text-center font-hand text-lg text-pink-600 mt-2">"Permulaan"</p>
+                </div>
+                <div class="back bg-white p-4 flex flex-col items-center">
+                    <h2 class="font-hand text-2xl text-pink-600 mb-2">Tentang Foto Ini</h2>
+                    <div class="text-scroll w-full text-left bg-blue-50 p-3 rounded-lg border border-blue-100 h-full">
+                        <p class="font-body text-xs text-gray-700 leading-relaxed">
+                            Ingat momen ini?<br>
+                            Senyum kamu di sini tulus banget! ✨
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper" id="p3" style="z-index: 4;">
+                <div class="front bg-white p-2 flex flex-col gap-2">
+                    <div class="flex-1 bg-pink-50 rounded overflow-hidden border border-gray-100">
+                        <img src="img/02.png" class="zoomable-img w-full h-full object-cover" onclick="openModal(this.src)">
+                    </div>
+                    <div class="flex-1 bg-yellow-50 rounded overflow-hidden border border-gray-100">
+                        <img src="img/03.png" class="zoomable-img w-full h-full object-cover" onclick="openModal(this.src)">
+                    </div>
+                </div>
+                <div class="back bg-white p-4 flex flex-col">
+                    <h2 class="font-hand text-2xl text-pink-600 text-center mb-3">Kenapa Kamu?</h2>
+                    <div class="text-scroll h-full">
+                        <ul class="space-y-2 font-body text-xs text-gray-700">
+                            <li class="flex items-center gap-2 bg-gray-50 p-2 rounded"><i class="fa-solid fa-check text-green-400"></i> Kamu baik hati</li>
+                            <li class="flex items-center gap-2 bg-gray-50 p-2 rounded"><i class="fa-solid fa-check text-green-400"></i> Support aku</li>
+                            <li class="flex items-center gap-2 bg-gray-50 p-2 rounded"><i class="fa-solid fa-check text-green-400"></i> Bikin nyaman</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper" id="p4" style="z-index: 3;">
+                <div class="front bg-white p-2 flex flex-col gap-2">
+                    <div class="flex-1 rounded border rotate-1 bg-white p-1 shadow-sm">
+                        <img src="img/04.png" class="zoomable-img w-full h-full object-cover rounded" onclick="openModal(this.src)">
+                    </div>
+                    <div class="flex-1 rounded border -rotate-1 bg-white p-1 shadow-sm">
+                        <img src="img/05.png" class="zoomable-img w-full h-full object-cover rounded" onclick="openModal(this.src)">
+                    </div>
+                </div>
+                <div class="back bg-white p-4 flex flex-col items-center text-center">
+                    <i class="fa-regular fa-envelope text-3xl text-pink-400 mb-2"></i>
+                    <h2 class="font-hand text-2xl text-gray-800 mb-2">Pesan Kecil</h2>
+                    <div class="text-scroll w-full text-left bg-yellow-50 p-3 rounded-lg border border-yellow-100 h-full">
+                        <p class="font-body text-xs text-gray-700 leading-relaxed italic">
+                            "Terima kasih sudah bertahan sejauh ini. Jaga kesehatan, jangan lupa makan, dan bahagia selalu ya!"
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper" id="p5" style="z-index: 2;">
+                <div class="front bg-white border-r border-gray-100">
+                    <div class="h-full flex flex-col justify-center items-center">
+                        <h1 class="font-hand text-3xl text-pink-600 mb-2">The End?</h1>
+                        <p class="font-body text-[10px] text-gray-400 uppercase tracking-widest">Buka halaman terakhir...</p>
+                    </div>
+                </div>
+                <div class="back bg-pink-600 text-white p-6 flex flex-col justify-center items-center text-center">
+                    <h2 class="font-hand text-3xl mb-2">Selesai</h2>
+                    <p class="text-xs opacity-90 mb-6">Jangan lupa kasih tau aku kalau udah baca ya...</p>
+                    
+                    <div class="w-full space-y-3">
+                        <button onclick="kirimWA()" class="w-full bg-white text-green-600 py-2 rounded-full font-bold text-xs shadow hover:bg-gray-100 flex justify-center items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> Balas Chat
+                        </button>
+                        <button onclick="location.reload()" class="w-full bg-pink-700 text-white py-2 rounded-full font-bold text-xs border border-white/30 hover:bg-pink-800 flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> Ulangi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div> <div class="flex gap-6 items-center z-50">
+            <button id="prevBtn" class="w-12 h-12 bg-white text-pink-500 rounded-full shadow-lg flex items-center justify-center hover:bg-pink-50 active:scale-95 transition hidden">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            
+            <span class="text-pink-600 text-xs font-bold animate-pulse px-3 py-1 bg-white/50 rounded-full">Geser / Klik Panah</span>
+
+            <button id="nextBtn" class="w-12 h-12 bg-white text-pink-500 rounded-full shadow-lg flex items-center justify-center hover:bg-pink-50 active:scale-95 transition">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- ANIMASI JATUH DARI ATAS (FALLING DOWN) ---
+        const bgContainer = document.getElementById('bgAnimation');
+        
+        const icons = [
+            'fa-paper-plane', 'fa-heart', 'fa-circle', 
+            'fa-star', 'fa-cloud', 'fa-music', 'fa-snowflake'
+        ];
+        const colors = [
+            'text-pink-300', 'text-rose-300', 'text-purple-300', 
+            'text-blue-300', 'text-yellow-300', 'text-green-300'
+        ];
+        
+        // Buat 25 item jatuh
+        for(let i=0; i<50; i++) {
+            const el = document.createElement('div');
+            el.className = 'float-item';
+            
+            const iconClass = icons[Math.floor(Math.random() * icons.length)];
+            const colorClass = colors[Math.floor(Math.random() * colors.length)];
+            const size = Math.random() * 1.5 + 1; 
+            
+            el.innerHTML = `<i class="fa-solid ${iconClass} ${colorClass}" style="font-size: ${size}rem; opacity: ${Math.random() * 0.4 + 0.3}"></i>`;
+            
+            el.style.left = Math.random() * 100 + '%';
+            
+            // Durasi jatuh (random antara 10 - 25 detik biar santai)
+            el.style.animationDuration = (Math.random() * 7 + 5) + 's';
+            
+            // Delay biar gak barengan mulainya
+            el.style.animationDelay = Math.random() * 10 + 's';
+            
+            bgContainer.appendChild(el);
+        }
+
+        // --- LOGIC BUKU ---
+        const papers = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4'), document.getElementById('p5')];
+        const book = document.getElementById('book');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentState = 1;
+        const maxState = papers.length + 1;
+
+        function updateButtons() {
+            if(currentState === 1) { prevBtn.classList.add('hidden'); nextBtn.classList.remove('hidden'); }
+            else if(currentState === maxState) { prevBtn.classList.remove('hidden'); nextBtn.classList.add('hidden'); }
+            else { prevBtn.classList.remove('hidden'); nextBtn.classList.remove('hidden'); }
+        }
+
+        document.getElementById('btnOpen').addEventListener('click', () => {
+            document.getElementById('bgMusic').play().catch(()=>{});
+            
+            const intro = document.getElementById('intro');
+            intro.style.opacity = '0'; // FADE OUT INTRO
+            
+            setTimeout(() => {
+                intro.classList.add('hidden');
+                document.getElementById('bookWrapper').classList.remove('hidden');
+                
+                // FADE IN BUKU (TANPA GESER POSISI)
+                setTimeout(()=> document.getElementById('bookWrapper').classList.remove('opacity-0'), 100);
+            }, 800);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if(currentState < maxState) {
+                if(currentState === 1) book.classList.add('book-open');
+                
+                const p = papers[currentState - 1];
+                p.classList.add('flipped');
+                p.style.zIndex = currentState;
+                
+                currentState++;
+                updateButtons();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if(currentState > 1) {
+                currentState--;
+                const p = papers[currentState - 1];
+                p.classList.remove('flipped');
+                p.style.zIndex = papers.length - (currentState - 1) + 10;
+                
+                if(currentState === 1) book.classList.remove('book-open');
+                updateButtons();
+            }
+        });
+
+        // MODAL
+        window.openModal = function(src) {
+            event.stopPropagation();
+            const modal = document.getElementById('imageModal');
+            document.getElementById('modalImg').src = src;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('modalImg').classList.remove('scale-95');
+            }, 10);
+        }
+        window.closeModal = function() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('opacity-0');
+            document.getElementById('modalImg').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        window.kirimWA = function() {
+            const no = "6281234567890"; 
+            const text = "Hi! Makasih ya kadonya ❤️";
+            window.open(`https://wa.me/${no}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+    </script>
+</body>
+</html>

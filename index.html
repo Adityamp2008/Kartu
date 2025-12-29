@@ -1,118 +1,14 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Our Story</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
-<body class="bg-pink-50 h-[100dvh] w-screen overflow-hidden flex flex-col justify-center items-center relative">
-
-    <audio id="bgMusic" loop>
-        <source src="audio/musik.mp3" type="audio/mpeg">
-    </audio>
-
-    <div id="intro" class="fixed inset-0 z-50 flex flex-col justify-center items-center bg-pink-100 transition-all duration-1000 px-6 text-center">
-        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg mb-6 animate-bounce text-pink-500 text-3xl">
-            <i class="fa-solid fa-gift"></i>
-        </div>
-        <h1 class="font-hand text-5xl text-pink-600 mb-2">For You</h1>
-        <p class="font-body text-gray-500 mb-8 text-sm">Ada sesuatu buat kamu...</p>
-        
-        <button id="btnOpen" class="px-8 py-3 bg-pink-500 text-white rounded-full shadow-lg font-bold hover:scale-105 transition-transform">
-            Buka Sekarang ❤️
-        </button>
-    </div>
-
-    <div id="bookWrapper" class="hidden opacity-0 transition-opacity duration-1000 relative w-full h-full flex justify-center items-center perspective-container">
-        
-        <div class="absolute inset-0 z-50 flex justify-between items-center px-4 md:px-10 pointer-events-none w-full max-w-4xl mx-auto">
-            <button id="prevBtn" class="pointer-events-auto w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-sm text-pink-500 rounded-full shadow-lg flex justify-center items-center hover:bg-white transition active:scale-90 border border-pink-100 hidden">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            
-            <div class="flex-grow"></div>
-
-            <button id="nextBtn" class="pointer-events-auto w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-sm text-pink-500 rounded-full shadow-lg flex justify-center items-center hover:bg-white transition active:scale-90 border border-pink-100 animate-pulse">
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-        </div>
-
-        <div id="book" class="relative w-[40vw] aspect-[3/4] md:w-[320px] md:h-[480px] transform-style-3d transition-transform duration-1000">
-            
-            <div class="paper" id="p1" style="z-index: 3;">
-                <div class="front bg-gradient-to-br from-pink-400 to-pink-600 text-white overflow-hidden border-2 border-pink-300 rounded-r-md">
-                    <div class="h-full w-full flex flex-col justify-center items-center p-4 text-center border-4 border-white/20 m-auto rounded">
-                        <i class="fa-solid fa-heart text-4xl mb-2"></i>
-                        <h1 class="font-hand text-4xl md:text-5xl drop-shadow-md">Our<br>Story</h1>
-                        <p class="text-[10px] uppercase tracking-widest mt-4 opacity-90">Special Edition</p>
-                    </div>
-                </div>
-                <div class="back bg-white overflow-hidden rounded-l-md border-l border-gray-200">
-                    <div class="h-full w-full p-6 flex flex-col justify-center items-center text-center">
-                        <h2 class="font-hand text-3xl text-pink-500 mb-2">Halo!</h2>
-                        <p class="font-body text-xs md:text-sm text-gray-600">
-                            Aku buat cerita pendek ini spesial buat kamu. <br>Geser ke kanan ya 👉
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="paper" id="p2" style="z-index: 2;">
-                <div class="front bg-white overflow-hidden rounded-r-md border-r border-gray-200">
-                    <div class="h-full w-full p-3 md:p-4 flex flex-col">
-                        <div class="flex-1 w-full bg-pink-100 rounded-lg overflow-hidden relative shadow-inner">
-                            <img src="img/foto1.jpg" class="w-full h-full object-cover" alt="Foto">
-                        </div>
-                        <p class="text-center font-hand text-lg md:text-xl text-pink-500 mt-2">"Beautiful You"</p>
-                    </div>
-                </div>
-                <div class="back bg-pink-50 overflow-hidden rounded-l-md">
-                    <div class="h-full w-full p-5 flex flex-col justify-center">
-                        <h2 class="font-hand text-2xl text-pink-600 mb-4 text-center">Kenapa Kamu?</h2>
-                        <ul class="space-y-3 font-body text-xs md:text-sm text-gray-700 ml-1">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-heart text-red-400"></i> Hatimu tulus</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-star text-yellow-400"></i> Selalu support aku</li>
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-face-smile text-blue-400"></i> Bikin hari cerah</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="paper" id="p3" style="z-index: 1;">
-                <div class="front bg-white overflow-hidden rounded-r-md">
-                    <div class="h-full w-full p-6 flex flex-col justify-center text-center">
-                        <i class="fa-regular fa-paper-plane text-pink-400 text-3xl mb-4"></i>
-                        <p class="font-body text-sm md:text-base text-gray-700 italic leading-relaxed">
-                            "Terima kasih sudah bertahan sejauh ini. Jaga kesehatan dan bahagia selalu ya!"
-                        </p>
-                    </div>
-                </div>
-                <div class="back bg-pink-600 text-white overflow-hidden rounded-l-md">
-                    <div class="h-full w-full p-6 flex flex-col justify-center items-center text-center">
-                        <h2 class="font-hand text-3xl mb-2">Selesai</h2>
-                        <p class="text-xs opacity-90 mb-6">Kirim reaksimu dong...</p>
-                        
-                        <div class="w-full space-y-3">
-                            <button onclick="kirimWA()" class="w-full bg-white text-green-600 py-2.5 rounded-full font-bold text-xs shadow-md hover:bg-gray-100 transition flex justify-center items-center gap-2">
-                                <i class="fa-brands fa-whatsapp text-lg"></i> Balas Chat
-                            </button>
-                            <button onclick="location.reload()" class="w-full bg-pink-700 text-white py-2.5 rounded-full font-bold text-xs hover:bg-pink-800 transition">
-                                <i class="fa-solid fa-rotate-right"></i> Baca Lagi
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-
-    <script src="js/script.js"></script>
+<body>
+    <h1>MASUK KE PERTAMA</h1>
+    <a href="01/index.html">pertama</a>
+    <h1>MASUK KE DUA</h1>
+    <a href="02/index.html">kedua</a>
 </body>
 </html>
