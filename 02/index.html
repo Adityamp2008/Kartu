@@ -23,12 +23,19 @@
                     animation: {
                         'bounce-slow': 'bounce 2s infinite',
                         'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'blob': "blob 7s infinite",
                     },
                     keyframes: {
                         wiggle: {
                             '0%, 100%': { transform: 'rotate(-3deg)' },
                             '50%': { transform: 'rotate(3deg)' },
-                        }
+                        },
+                        blob: {
+                            "0%": { transform: "translate(0px, 0px) scale(1)" },
+                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                            "100%": { transform: "translate(0px, 0px) scale(1)" },
+                        },
                     }
                 }
             }
@@ -38,15 +45,20 @@
     <style>
         body {
             background-color: #fff1f2;
-            background-image: radial-gradient(#fb7185 0.5px, transparent 0.5px);
-            background-size: 20px 20px;
+            /* Pola Grid */
+            background-image: 
+                linear-gradient(to right, rgba(251, 113, 133, 0.15) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(251, 113, 133, 0.15) 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-attachment: fixed;
             overflow-x: hidden;
         }
 
-        /* SVG Line Container */
+        /* Container SVG Tali */
         #svg-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none; overflow: visible;
+            z-index: 5; /* Di atas partikel, di bawah foto */
+            pointer-events: none; overflow: visible;
         }
         
         .red-string {
@@ -54,12 +66,44 @@
             stroke-linecap: round; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.1));
         }
 
+        /* Container Partikel Background */
+        #particle-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; /* Paling belakang tapi di atas background color */
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-particle {
+            position: absolute;
+            top: -10%;
+            opacity: 0;
+            animation-name: floatDown;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes floatDown {
+            0% {
+                top: -10%;
+                opacity: 0;
+                transform: translateX(0) rotate(0deg);
+            }
+            10% {
+                opacity: 0.6; /* Muncul perlahan */
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                top: 110%; /* Jatuh sampai bawah layar */
+                opacity: 0;
+                transform: translateX(50px) rotate(360deg); /* Bergerak miring & muter */
+            }
+        }
+
         /* Scrollbar Hide */
         ::-webkit-scrollbar { width: 0; background: transparent; }
-
-        /* Gift Box CSS */
-        .gift-box { cursor: pointer; transition: transform 0.3s; }
-        .gift-box:active { transform: scale(0.9); }
     </style>
 </head>
 <body class="font-body text-gray-700">
@@ -68,9 +112,11 @@
         <source src="musik.mp3" type="audio/mpeg">
     </audio>
 
-    <button id="btn-music" class="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur w-10 h-10 rounded-full shadow border border-pink-200 text-pink-500 flex items-center justify-center">
+    <button id="btn-music" class="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur w-10 h-10 rounded-full shadow border border-pink-200 text-pink-500 flex items-center justify-center hover:bg-pink-50">
         <i class="fa-solid fa-music"></i>
     </button>
+
+    <div id="particle-container"></div>
 
 
     <main id="stage-story" class="relative w-full min-h-screen pb-40 transition-opacity duration-1000">
@@ -82,58 +128,64 @@
 
         <svg id="svg-container"></svg>
 
-        <div id="timeline-container" class="relative z-10 max-w-md mx-auto px-6 flex flex-col gap-32 pt-10"></div>
+        <div id="timeline-container" class="relative z-10 max-w-md mx-auto px-6 flex flex-col gap-32 pt-10">
+            </div>
 
     </main>
 
 
-    <section id="stage-surprise" class="fixed inset-0 z-40 hidden flex flex-col items-center justify-center bg-pink-50/95 backdrop-blur-sm">
-        <div class="text-center animate-wiggle cursor-pointer" onclick="openGift()">
-            <div class="text-[8rem] leading-none drop-shadow-2xl">🎁</div>
-            <p class="mt-4 font-bold text-pink-600 text-xl animate-pulse">Ketuk Kado Untuk Membuka!</p>
+    <section id="stage-surprise" class="fixed inset-0 z-40 hidden flex flex-col items-center justify-center bg-pink-50/80 backdrop-blur-md">
+        <div class="text-center animate-wiggle cursor-pointer p-10 rounded-3xl bg-white/40 border-2 border-pink-200/50 shadow-xl" onclick="openGift()">
+            <div class="text-[8rem] leading-none drop-shadow-2xl transition-transform active:scale-90">🎁</div>
+            <p class="mt-6 font-bold text-pink-600 text-xl animate-pulse bg-white/80 px-4 py-2 rounded-full inline-block">Buka Kado Spesial!</p>
         </div>
     </section>
 
 
-    <section id="stage-finale" class="hidden min-h-screen w-full bg-white relative">
-        <div class="h-40 bg-gradient-to-b from-pink-200 to-white relative overflow-hidden">
-            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-            <div class="absolute top-0 -right-10 w-40 h-40 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+    <section id="stage-finale" class="hidden min-h-screen w-full bg-white/95 relative z-50">
+        <div class="h-40 relative overflow-hidden">
+             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-pink-100 to-transparent opacity-50"></div>
+            <div class="absolute -top-10 -left-10 w-48 h-48 bg-pink-300 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-blob"></div>
+            <div class="absolute top-0 -right-10 w-48 h-48 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-blob animation-delay-2000"></div>
         </div>
 
         <div class="px-6 -mt-20 relative z-10 pb-20 max-w-lg mx-auto">
-            
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-pink-100 p-8 text-center mb-10 transform translate-y-0">
-                <div class="text-5xl mb-4">🎂</div>
-                <h2 class="text-4xl font-script text-pink-600 mb-4">Happy Birthday!</h2>
-                <div class="text-gray-600 space-y-3 leading-relaxed text-sm">
-                    <p>Hai, kamu!</p>
-                    <p>Selamat ulang tahun ya. Website sederhana ini cuma cara kecil aku buat ngingetin betapa berharganya setiap momen bareng kamu (seperti foto-foto di bawah ini).</p>
-                    <p>Semoga di umur yang baru ini kamu makin bahagia, sehat terus, dan semua impian kamu tercapai.</p>
-                    <p class="font-bold text-pink-500 pt-4">Make a wish! ✨</p>
+            <div class="bg-white rounded-3xl shadow-[0_20px_50px_rgba(244,63,94,0.2)] border border-pink-100 p-8 text-center mb-12 transform translate-y-0 relative overflow-hidden">
+                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-300 via-pink-500 to-pink-300"></div>
+                <div class="text-6xl mb-4 inline-block">🎂</div>
+                <h2 class="text-5xl font-script text-pink-600 mb-6">Happy Birthday!</h2>
+                <div class="text-gray-600 space-y-4 leading-relaxed text-[15px] font-medium">
+                    <p>Hai, Birthday Girl!</p>
+                    <p>Terima kasih sudah menjadi bagian terindah dari cerita ini. Website ini cuma sekumpulan kode, tapi kenangan kita di dalamnya itu nyata dan berharga.</p>
+                    <p>Semoga semua doa baik menyertaimu hari ini dan seterusnya. Sehat selalu ya!</p>
+                    <p class="font-bold text-pink-500 pt-4 text-lg font-script">Make a wish! ✨</p>
                 </div>
             </div>
 
-            <h3 class="text-center font-bold text-pink-400 mb-4 text-sm tracking-widest">KOLEKSI FOTO KITA</h3>
-            <div id="final-gallery" class="grid grid-cols-2 gap-3">
-                </div>
+            <div class="bg-white/80 backdrop-blur-sm p-4 rounded-3xl border border-pink-100 shadow-sm">
+                <h3 class="text-center font-bold text-pink-400 mb-4 text-sm tracking-widest flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-images"></i>FOTO KITA <span class="fa-solid fa-heart"></span>
+                </h3>
+                <div id="final-gallery" class="grid grid-cols-2 gap-3">
+                    </div>
+            </div>
 
-            <button onclick="location.reload()" class="mt-12 w-full py-4 rounded-xl text-pink-400 hover:bg-pink-50 text-sm font-bold border border-pink-200 border-dashed">
-                Ulangi Dari Awal ↺
+            <button onclick="location.reload()" class="mt-12 w-full py-4 rounded-xl text-pink-500 hover:bg-pink-50 text-sm font-bold border-2 border-pink-200 border-dashed flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> Ulangi
             </button>
         </div>
     </section>
 
 
     <div class="fixed bottom-6 left-0 w-full px-6 z-30 flex justify-center">
-        <button id="btn-action" class="bg-pink-600 text-white w-full max-w-xs h-14 rounded-full shadow-lg shadow-pink-300/50 font-bold text-lg flex items-center justify-center gap-2 hover:bg-pink-700 active:scale-95 transition-all">
-            <span>Mulai</span> <i class="fa-solid fa-play text-sm"></i>
+        <button id="btn-action" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white w-full max-w-xs h-14 rounded-full shadow-xl shadow-pink-500/30 font-bold text-lg flex items-center justify-center gap-2 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all ring-4 ring-pink-100">
+            <span>Mulai Perjalanan</span> <i class="fa-solid fa-play text-sm"></i>
         </button>
     </div>
 
 
-    <div id="lightbox" class="fixed inset-0 bg-black/95 z-[60] hidden flex justify-center items-center p-2" onclick="this.classList.add('hidden')">
-        <img id="lightbox-img" src="" class="max-w-full max-h-screen rounded shadow-lg object-contain">
+    <div id="lightbox" class="fixed inset-0 bg-black/90 z-[60] hidden flex justify-center items-center p-4 backdrop-blur-sm" onclick="this.classList.add('hidden')">
+        <img id="lightbox-img" src="" class="max-w-full max-h-[85vh] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] object-contain border-4 border-white transform scale-95 transition-transform duration-300">
     </div>
 
 
@@ -144,12 +196,11 @@
     <script>
         gsap.registerPlugin(ScrollToPlugin);
 
-        // --- KONFIGURASI CAPTION ---
-        // Jumlah item disini menentukan jumlah foto yg diambil (01.png s/d XX.png)
+        // --- DATA SETUP ---
         const storyData = [
             { title: "Hello You!", desc: "Awal cerita dimulai dari sini..." },
             { title: "Beautiful Smile", desc: "Senyum kamu yang selalu bikin adem." },
-            { title: "Adventure", desc: "Ingat nggak waktu kita kesini?" },
+            { title: "Adventure Time", desc: "Ingat nggak waktu kita kesini?" },
             { title: "Random Moment", desc: "Foto candid yang aku suka banget." },
             { title: "Best Partner", desc: "Terima kasih udah selalu ada." }
         ];
@@ -161,32 +212,75 @@
         const btnAction = document.getElementById('btn-action');
         const bgMusic = document.getElementById('bg-music');
         
-        // --- 1. SETUP AUTOMATIC IMAGES ---
-        // Fungsi ini akan membuat card foto berdasarkan array storyData
-        // dan otomatis melampirkan img/01.png, img/02.png dst.
+        // --- 1. PARTIKEL BACKGROUND (NEW FEATURES) ---
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const icons = [
+                'fa-heart',         // Love
+                'fa-star',          // Bintang
+                'fa-circle',        // Lingkaran (Dots)
+                'fa-paper-plane',   // Pesawat Kertas
+                'fa-music',         // Musik
+                'fa-snowflake'      // Salju/Bunga
+            ];
+            
+            // Buat 50 partikel
+            for (let i = 0; i < 50; i++) {
+                const icon = document.createElement('i');
+                const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                
+                // Tambahkan class dasar
+                icon.classList.add('fa-solid', randomIcon, 'floating-particle');
+                
+                // Random Posisi Horizontal (0% - 100%)
+                icon.style.left = Math.random() * 100 + '%';
+                
+                // Random Durasi (7s - 10s)
+                const duration = Math.random() * 3 + 7; 
+                icon.style.animationDuration = duration + 's';
+                
+                // Random Delay (Biar gak barengan, 0s - 5s)
+                icon.style.animationDelay = Math.random() * 5 + 's';
+                
+                // Random Ukuran (text-xs sampai text-xl)
+                const sizes = ['text-xs', 'text-sm', 'text-base', 'text-lg'];
+                const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+                icon.classList.add(randomSize);
+                
+                // Random Warna (Pink muda ke agak tua, biar estetik)
+                const colors = ['text-pink-200', 'text-rose-300', 'text-pink-300', 'text-red-200'];
+                icon.classList.add(colors[Math.floor(Math.random() * colors.length)]);
+
+                container.appendChild(icon);
+            }
+        }
+        createParticles(); // Jalankan fungsi
+
+
+        // --- 2. TIMELINE GENERATOR ---
         function initTimeline() {
             storyData.forEach((data, index) => {
-                const imgNum = String(index + 1).padStart(2, '0'); // Ubah 1 jadi "01", 2 jadi "02"
-                const imgPath = `img/${imgNum}.png`; // Format: img/01.png
-
-                // Zig-zag layout logic
+                const imgNum = String(index + 1).padStart(2, '0');
+                const imgPath = `img/${imgNum}.png`; 
                 const align = index % 2 === 0 ? 'items-start' : 'items-end';
+                const rotate = index % 2 === 0 ? '-2' : '2';
                 
                 const html = `
-                    <div id="memory-${index}" class="relative w-full flex flex-col ${align} opacity-0 translate-y-10">
-                        <div class="relative w-[85%] bg-white p-3 pb-8 shadow-xl rounded-lg transform rotate-${index % 2 === 0 ? '-1' : '1'}">
+                    <div id="memory-${index}" class="relative w-full flex flex-col ${align} opacity-0 translate-y-10 z-20">
+                        <div class="relative w-[85%] bg-white p-3 pb-8 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-2xl transform rotate-${rotate} border-2 border-white transition-transform hover:rotate-0 hover:scale-105">
                             <div id="pin-in-${index}" class="absolute -top-4 left-1/2 -translate-x-1/2 w-2 h-2 bg-transparent"></div>
                             
-                            <div class="aspect-[4/5] overflow-hidden rounded bg-gray-100 mb-3 border border-gray-100">
+                            <div class="aspect-[4/5] overflow-hidden rounded-xl bg-gray-100 mb-3 border-2 border-gray-50 shadow-inner relative group">
+                                <div class="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/10 transition-all z-10"></div>
                                 <img src="${imgPath}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x500?text=Foto+Hilang'">
                             </div>
                             
                             <div class="text-center px-1">
-                                <h3 class="font-script text-2xl text-pink-600">${data.title}</h3>
-                                <p class="text-xs text-gray-400 mt-1 font-body">${data.desc}</p>
+                                <h3 class="font-script text-3xl text-pink-600">${data.title}</h3>
+                                <p class="text-sm text-gray-500 mt-2 font-body leading-tight">${data.desc}</p>
                             </div>
 
-                            <div id="pin-out-${index}" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-pink-500 rounded-full border-2 border-white z-10 shadow"></div>
+                            <div id="pin-out-${index}" class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-4 h-4 bg-pink-500 rounded-full border-4 border-white z-20 shadow-md"></div>
                         </div>
                     </div>
                 `;
@@ -196,34 +290,29 @@
         initTimeline();
 
 
-        // --- 2. ACTION BUTTON LOGIC ---
+        // --- 3. ACTION LOGIC ---
         btnAction.addEventListener('click', () => {
-            // Play Music on first click
             if (bgMusic.paused) {
                 bgMusic.volume = 0.6;
-                bgMusic.play().catch(e => console.log("Audio blocked"));
+                bgMusic.play().catch(e => {});
                 btnAction.innerHTML = `<span>Lanjut</span> <i class="fa-solid fa-arrow-down"></i>`;
             }
 
-            // Case 1: First Photo
             if (step === 0) {
                 revealItem(0);
                 step++;
                 return;
             }
 
-            // Case 2: Next Photos
             if (step < storyData.length) {
-                // Disable button sementara animasi jalan
                 btnAction.disabled = true;
+                btnAction.classList.add('opacity-80');
                 
-                // Draw line
                 drawRedString(step - 1, step);
 
-                // Auto Scroll Logic
                 const nextEl = document.getElementById(`memory-${step}`);
                 gsap.to(window, { 
-                    scrollTo: { y: nextEl, offsetY: 100 }, 
+                    scrollTo: { y: nextEl, offsetY: 120 }, 
                     duration: 1.5, 
                     ease: "power2.inOut" 
                 });
@@ -232,34 +321,32 @@
                     revealItem(step);
                     step++;
                     btnAction.disabled = false;
+                    btnAction.classList.remove('opacity-80');
 
-                    // Cek jika sudah foto terakhir
                     if (step === storyData.length) {
-                        btnAction.innerHTML = `<span>Ada Kejutan!</span> <i class="fa-solid fa-gift"></i>`;
-                        btnAction.classList.remove('bg-pink-600');
-                        btnAction.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-purple-500', 'animate-pulse');
+                        btnAction.innerHTML = `<span>Ada Kejutan!</span> <i class="fa-solid fa-gift animate-bounce"></i>`;
+                        btnAction.classList.remove('from-pink-500', 'to-rose-500');
+                        btnAction.classList.add('from-purple-500', 'to-pink-500', 'animate-pulse');
                     }
-                }, 1200); // Tunggu garis selesai
+                }, 1200);
             } 
-            // Case 3: Finish -> Trigger Surprise
             else {
                 triggerSurpriseStage();
             }
         });
 
 
-        // --- 3. ANIMATION HELPERS ---
+        // --- 4. ANIMATION HELPERS ---
         function revealItem(idx) {
             const el = document.getElementById(`memory-${idx}`);
             el.classList.remove('opacity-0', 'translate-y-10');
-            gsap.from(el, { scale: 0.9, duration: 1, ease: "elastic.out(1, 0.75)" });
+            gsap.from(el, { scale: 0.9, rotation: 0, duration: 1, ease: "elastic.out(1, 0.75)" });
         }
 
         function drawRedString(fromIdx, toIdx) {
             const pinStart = document.getElementById(`pin-out-${fromIdx}`);
             const pinEnd = document.getElementById(`pin-in-${toIdx}`);
 
-            // Get coordinates
             const rect1 = pinStart.getBoundingClientRect();
             const rect2 = pinEnd.getBoundingClientRect();
             const svgRect = svgContainer.getBoundingClientRect();
@@ -269,16 +356,14 @@
             const x2 = rect2.left + rect2.width/2 - svgRect.left;
             const y2 = rect2.top + rect2.height/2 - svgRect.top;
 
-            // Bezier Curve (Hanging effect)
             const cx = (x1 + x2) / 2;
-            const cy = (y1 + y2) / 2 + 60; // Lengkungan tali
+            const cy = (y1 + y2) / 2 + 80; 
 
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             path.setAttribute("d", `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`);
             path.setAttribute("class", "red-string");
             svgContainer.appendChild(path);
 
-            // Animate stroke
             const len = path.getTotalLength();
             path.style.strokeDasharray = len;
             path.style.strokeDashoffset = len;
@@ -288,42 +373,35 @@
         }
 
 
-        // --- 4. SURPRISE & FINALE LOGIC ---
+        // --- 5. FINALE LOGIC ---
         function triggerSurpriseStage() {
-            // Hide story controls
-            gsap.to('#btn-action', { y: 100, duration: 0.5 });
+            gsap.to('#btn-action', { y: 200, opacity: 0, duration: 0.5 });
             
-            // Fade out story, Fade in Surprise Box
             const story = document.getElementById('stage-story');
             const surprise = document.getElementById('stage-surprise');
             
-            gsap.to(story, { opacity: 0, duration: 0.5, onComplete: () => {
+            gsap.to(story, { opacity: 0, scale: 0.95, duration: 0.5, onComplete: () => {
                 story.classList.add('hidden');
                 surprise.classList.remove('hidden');
-                gsap.from(surprise.firstElementChild, { scale: 0, rotation: 180, duration: 1, ease: "back.out" });
+                gsap.from(surprise.firstElementChild, { scale: 0, rotation: -180, duration: 1, ease: "back.out(1.5)" });
             }});
         }
 
-        // Dipanggil saat Kado diklik
         window.openGift = function() {
-            // Confetti Explosion
             fireConfetti();
-            
             const surprise = document.getElementById('stage-surprise');
             const finale = document.getElementById('stage-finale');
+            // Hentikan partikel di ending agar fokus ke surat
+            document.getElementById('particle-container').style.opacity = '0.3'; 
 
-            // Hide Box, Show Finale
-            gsap.to(surprise, { scale: 1.5, opacity: 0, duration: 0.5, onComplete: () => {
+            gsap.to(surprise.firstElementChild, { scale: 2, opacity: 0, rotation: 20, duration: 0.5 });
+            gsap.to(surprise, { backgroundColor: "rgba(255,255,255,1)", duration: 0.5, onComplete: () => {
                 surprise.classList.add('hidden');
                 finale.classList.remove('hidden');
-                
-                // Copy photos to final gallery
                 populateFinalGallery();
-
-                // Animate Entry
-                gsap.from(finale, { opacity: 0, duration: 1 });
-                gsap.from('.bg-white\\/80', { y: 50, opacity: 0, delay: 0.5, duration: 1 });
-                gsap.to(window, { scrollTo: 0, duration: 0 }); // Reset scroll
+                gsap.from(finale, { opacity: 0, duration: 0.8 });
+                gsap.from('.bg-white.rounded-3xl', { y: 100, opacity: 0, scale: 0.9, delay: 0.3, duration: 1, ease: "back.out" });
+                gsap.to(window, { scrollTo: 0, duration: 0 });
             }});
         }
 
@@ -332,7 +410,10 @@
             storyData.forEach((data, index) => {
                 const imgNum = String(index + 1).padStart(2, '0');
                 const html = `
-                    <div onclick="showLightbox('img/${imgNum}.png')" class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer active:scale-95 transition-transform">
+                    <div onclick="showLightbox('img/${imgNum}.png')" class="aspect-square bg-gray-100 rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-all shadow-sm hover:shadow-md border border-pink-100 relative group">
+                        <div class="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-all z-10 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <i class="fa-solid fa-magnifying-glass-plus text-white text-2xl drop-shadow-lg"></i>
+                        </div>
                         <img src="img/${imgNum}.png" class="w-full h-full object-cover">
                     </div>
                 `;
@@ -340,22 +421,23 @@
             });
         }
 
-        // --- 5. UTILS ---
         window.showLightbox = function(src) {
-            document.getElementById('lightbox-img').src = src;
+            const lbImg = document.getElementById('lightbox-img');
+            lbImg.src = src;
             document.getElementById('lightbox').classList.remove('hidden');
+            gsap.from(lbImg, {scale: 0.9, opacity: 0, duration: 0.3});
         }
 
         function fireConfetti() {
             const duration = 3000; 
             const end = Date.now() + duration;
             (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#f43f5e', '#fecdd3'] });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#f43f5e', '#fecdd3'] });
+                confetti({ particleCount: 7, angle: 60, spread: 70, origin: { x: 0 }, colors: ['#f43f5e', '#fda4af', '#fff'] });
+                confetti({ particleCount: 7, angle: 120, spread: 70, origin: { x: 1 }, colors: ['#f43f5e', '#fda4af', '#fff'] });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
-
+        
         document.getElementById('btn-music').addEventListener('click', () => {
             if(bgMusic.paused) bgMusic.play(); else bgMusic.pause();
         });
