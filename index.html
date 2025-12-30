@@ -1,14 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Selamat Datang!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            /* Gradasi Pastel Pink ke Biru */
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            background: linear-gradient(to bottom, #ffdde1, #ee9ca7); 
+            /* Atau opsi pastel lain: */
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Supaya scrollbar tidak muncul saat partikel jatuh */
+            position: relative;
+        }
+
+        /* Container Kartu (Glassmorphism) */
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 10; /* Supaya di atas partikel */
+            width: 90%;
+            max-width: 400px;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            color: #ff6b81;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-wrapper {
+            margin-bottom: 2rem;
+        }
+
+        .btn-wrapper:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Styling Tombol */
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Tombol Pertama (Pink) */
+        .btn-pink {
+            background-color: #ff9a9e;
+            color: white;
+            border: 2px solid #ff9a9e;
+        }
+
+        .btn-pink:hover {
+            background-color: white;
+            color: #ff9a9e;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 154, 158, 0.4);
+        }
+
+        /* Tombol Kedua (Biru Pastel) */
+        .btn-blue {
+            background-color: #a18cd1;
+            background: linear-gradient(to right, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-blue:hover {
+            opacity: 0.9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(161, 140, 209, 0.4);
+        }
+
+        /* Animasi Partikel Jatuh */
+        .falling-icon {
+            position: absolute;
+            top: -50px;
+            color: rgba(255, 255, 255, 0.8);
+            animation: fall linear forwards;
+            font-size: 20px;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        /* Warna-warni partikel */
+        .color-1 { color: #ff9a9e; }
+        .color-2 { color: #a18cd1; }
+        .color-3 { color: #fad0c4; }
+        .color-4 { color: #84fab0; }
+        .color-5 { color: #fccb90; }
+
+    </style>
 </head>
 <body>
-    <h1>MASUK KE PERTAMA</h1>
-    <a href="01/index.html">pertama</a>
-    <h1>MASUK KE DUA</h1>
-    <a href="02/index.html">kedua</a>
+
+    <div class="container">
+        <div class="btn-wrapper">
+            <h1>BUKA PERTAMA</h1>
+            <a href="01/index.html" class="btn btn-pink">
+                <i class="fa-solid fa-gift"></i> Klik Aku
+            </a>
+        </div>
+
+        <hr style="border: 0; border-top: 2px dashed #ffdde1; margin: 20px 0;">
+
+        <div class="btn-wrapper">
+            <h1>BUKA KEDUA</h1>
+            <a href="02/index.html" class="btn btn-blue">
+                <i class="fa-solid fa-cake-candles"></i> Klik Aku
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function createFallingIcon() {
+            const icon = document.createElement('i');
+            
+            // Daftar ikon FontAwesome yang akan jatuh (hati, bintang, kado, musik)
+            const iconClasses = ['fa-heart', 'fa-star', 'fa-gift', 'fa-music', 'fa-face-smile'];
+            const randomIcon = iconClasses[Math.floor(Math.random() * iconClasses.length)];
+            
+            icon.classList.add('fa-solid', randomIcon, 'falling-icon');
+            
+            // Tambahkan warna acak
+            const colorClass = 'color-' + (Math.floor(Math.random() * 5) + 1);
+            icon.classList.add(colorClass);
+
+            // Posisi horizontal acak
+            icon.style.left = Math.random() * 100 + 'vw';
+            
+            // Ukuran acak
+            const size = Math.random() * 20 + 10 + 'px'; // antara 10px sampai 30px
+            icon.style.fontSize = size;
+            
+            // Durasi jatuh acak (kecepatan)
+            const duration = Math.random() * 3 + 2 + 's'; // antara 2 sampai 5 detik
+            icon.style.animationDuration = duration;
+
+            document.body.appendChild(icon);
+
+            // Hapus elemen setelah animasi selesai agar tidak memberatkan browser
+            setTimeout(() => {
+                icon.remove();
+            }, 5000); // Sesuaikan dengan durasi maksimal animasi
+        }
+
+        // Buat partikel setiap 300 milidetik
+        setInterval(createFallingIcon, 300);
+    </script>
 </body>
 </html>
